@@ -24,6 +24,8 @@ button, input, select, textarea { font: inherit; }
 .skip-link:focus { transform: translateY(0); }
 
 .site-header { position: sticky; top: 0; z-index: 20; height: 76px; background: var(--paper); border-bottom: 1px solid #e3e8ef; }
+.site-header::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 1px; box-shadow: 0 5px 10px #12263f26; content: ""; opacity: 0; pointer-events: none; transform: translateY(-3px); transition: opacity .2s ease, transform .2s ease; }
+.site-header.has-scrolled::after { opacity: 1; transform: translateY(0); }
 .header-inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 .brand { color: var(--ink); font-family: "Bricolage Grotesque", system-ui, sans-serif; font-size: 23px; font-weight: 700; letter-spacing: -.7px; text-decoration: none; }
 .brand span { font-weight: 600; }
@@ -134,16 +136,34 @@ h1 { max-width: 620px; margin-bottom: 20px; font-size: 36px; line-height: 1.11; 
 .mobile-enquire { position: fixed; z-index: 19; right: 82px; bottom: 14px; left: 14px; min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: var(--radius); color: var(--ink); background: var(--gold); font-weight: 700; text-decoration: none; box-shadow: 0 3px 12px #12263f33; }
 
 @media (prefers-reduced-motion: no-preference) {
-  html.motion-ready .motion-reveal { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; will-change: opacity, transform; }
+  html.motion-ready .motion-reveal { opacity: 0; transform: translateY(16px); transition: opacity .22s ease, transform .22s ease; will-change: opacity, transform; }
   html.motion-ready .hero-copy .motion-reveal { transition-duration: .6s; }
   html.motion-ready .motion-reveal.is-visible { opacity: 1; transform: translateY(0); }
-  html.motion-ready .trust-stamp.motion-reveal { transform: scale(1.12) rotate(-4deg); transition-duration: .4s; }
-  html.motion-ready .trust-stamp.motion-reveal.is-visible { transform: scale(1) rotate(-4deg); }
-  .hero-image { animation: hero-image-drift 18s ease-in-out infinite alternate; transform-origin: center; }
-  @keyframes hero-image-drift { from { transform: scale(1); } to { transform: scale(1.06); } }
+  html.motion-ready .steps li.motion-reveal { transform: scale(.94); transform-origin: top left; }
+  html.motion-ready .steps li.motion-reveal.is-visible { transform: scale(1); }
+  html.motion-ready .trust-stamp.motion-reveal { transform: scale(1.12) rotate(-4deg); }
+  html.motion-ready .trust-stamp.motion-reveal.is-visible { animation: trust-stamp-land .24s ease-out both; }
+  @keyframes trust-stamp-land {
+    0% { transform: scale(1.12) rotate(-4deg); }
+    68% { transform: scale(.98) rotate(-4deg); }
+    86% { transform: scale(1.015) rotate(-4deg); }
+    100% { transform: scale(1) rotate(-4deg); }
+  }
+  .hero-image { animation: hero-image-drift 16s ease-in-out infinite alternate; transform-origin: center; }
+  @keyframes hero-image-drift { from { transform: scale(1); } to { transform: scale(1.08); } }
+  html.motion-ready .service-row.image-in-view .service-visual img { animation: service-image-drift 14s ease-in-out infinite alternate; transform-origin: center; }
+  @keyframes service-image-drift { from { transform: scale(1); } to { transform: scale(1.08); } }
   @media (hover: hover) and (pointer: fine) {
-    .service-visual img { transition: transform 1.2s ease; }
-    .service-visual:hover img { transform: scale(1.035); }
+    .service-row.image-in-view .service-visual img { transition: transform 1.2s ease; }
+    .service-row.image-in-view .service-visual:hover img { animation-play-state: paused; transform: scale(1.08); }
+  }
+  #top .hero-actions .button-primary { position: relative; isolation: isolate; overflow: hidden; }
+  #top .hero-actions .button-primary::after { position: absolute; top: -30%; bottom: -30%; left: 0; z-index: 1; width: 42%; background: linear-gradient(105deg, transparent, #ffffff9c, transparent); content: ""; opacity: 0; pointer-events: none; transform: translateX(-160%) skewX(-18deg); animation: hero-cta-shine 6s ease-in-out infinite; }
+  @keyframes hero-cta-shine {
+    0%, 100% { opacity: 0; transform: translateX(-160%) skewX(-18deg); }
+    5% { opacity: .65; }
+    17% { opacity: .5; transform: translateX(310%) skewX(-18deg); }
+    20% { opacity: 0; transform: translateX(310%) skewX(-18deg); }
   }
   .bpFabWrapper.chat-pulse-once { animation: chat-soft-pulse 1.2s ease-out 1 both; }
   @keyframes chat-soft-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.045); } }
@@ -201,4 +221,6 @@ h1 { max-width: 620px; margin-bottom: 20px; font-size: 36px; line-height: 1.11; 
   html.motion-ready .motion-reveal { opacity: 1 !important; transform: none !important; }
   html.motion-ready .trust-stamp.motion-reveal { transform: rotate(-4deg) !important; }
   .button:hover, .button:active { transform: none !important; }
+  .service-visual:hover img { transform: none !important; }
+  .site-header.has-scrolled::after { transform: none !important; }
 }

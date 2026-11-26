@@ -49,13 +49,19 @@ form.addEventListener("submit", (event) => {
 document.querySelector("#year").textContent = new Date().getFullYear();
 
 (() => {
+  const siteHeader = document.querySelector(".site-header");
+  const updateHeaderShadow = () => siteHeader?.classList.toggle("has-scrolled", window.scrollY > 8);
+  updateHeaderShadow();
+  window.addEventListener("scroll", updateHeaderShadow, { passive: true });
+
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   if (reducedMotion.matches || !("IntersectionObserver" in window)) return;
 
   const revealQueue = [];
-  const revealInterval = 420;
+  const revealInterval = 120;
   let revealTimer;
   let observer;
+  let serviceImageObserver;
 
   const addSequence = (root, selectors) => {
     const elements = selectors.flatMap((selector) => [...root.querySelectorAll(selector)]);
@@ -81,25 +87,23 @@ document.querySelector("#year").textContent = new Date().getFullYear();
     plan.elements = addSequence(plan.root, plan.selectors);
   });
 
-  const enqueue = (elements) => {
+  const enqueue = (elements, interval = revealInterval) => {
     elements.forEach((element) => {
       if (element.classList.contains("motion-queued")) return;
       element.classList.add("motion-queued");
-      revealQueue.push(element);
+      revealQueue.push({ element, interval });
     });
     revealNext();
   };
 
   const revealNext = () => {
     if (revealTimer || !revealQueue.length || reducedMotion.matches) return;
-    const element = revealQueue.shift();
-    element.classList.add("is-visible");
-    // A 420ms start interval leaves an 80ms overlap in each 500ms reveal,
-    // so no more than two items move at once.
+    const queuedReveal = revealQueue.shift();
+    queuedReveal.element.classList.add("is-visible");
     revealTimer = window.setTimeout(() => {
       revealTimer = undefined;
       revealNext();
-    }, revealInterval);
+    }, queuedReveal.interval);
   };
 
   try {
@@ -111,18 +115,25 @@ document.querySelector("#year").textContent = new Date().getFullYear();
         observer.unobserve(entry.target);
       });
     }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    serviceImageObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => entry.target.classList.toggle("image-in-view", entry.isIntersecting));
+    }, { threshold: 0.1 });
 
     pagePlans.forEach((plan) => observer.observe(plan.root));
+    document.querySelectorAll(".service-row").forEach((row) => serviceImageObserver.observe(row));
     document.documentElement.classList.add("motion-ready");
-    enqueue(heroSequence);
+    enqueue(heroSequence, 520);
   } catch {
     document.documentElement.classList.remove("motion-ready");
+    observer?.disconnect();
+    serviceImageObserver?.disconnect();
     return;
   }
 
   reducedMotion.addEventListener?.("change", (event) => {
     if (!event.matches) return;
     observer.disconnect();
+    serviceImageObserver.disconnect();
     window.clearTimeout(revealTimer);
     revealQueue.length = 0;
     document.documentElement.classList.remove("motion-ready");
