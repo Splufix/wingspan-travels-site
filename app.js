@@ -4,6 +4,10 @@ const emailInput = document.querySelector("#email");
 const emailError = document.querySelector("#email-error");
 const formStatus = document.querySelector("#form-status");
 
+document.addEventListener("visibilitychange", () => {
+  document.documentElement.classList.toggle("page-hidden", document.hidden);
+});
+
 document.querySelectorAll("[data-service]").forEach((link) => {
   link.addEventListener("click", () => {
     serviceSelect.value = link.dataset.service;
